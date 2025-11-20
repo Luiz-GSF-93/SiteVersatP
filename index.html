@@ -1,38 +1,4 @@
-import { Hono } from 'hono'
-import { cors } from 'hono/cors'
-import { serveStatic } from 'hono/cloudflare-workers'
 
-const app = new Hono()
-
-// Enable CORS for API routes
-app.use('/api/*', cors())
-
-// Serve static files
-app.use('/static/*', serveStatic({ root: './public' }))
-
-// API routes
-app.get('/api/contact', async (c) => {
-  return c.json({ 
-    message: 'API de contato funcionando',
-    email: 'contato@vesatprime.com.br',
-    phone: '+55 (11) 99999-9999'
-  })
-})
-
-app.post('/api/contact', async (c) => {
-  try {
-    const body = await c.req.json()
-    // Aqui você pode adicionar lógica para enviar email ou salvar em banco de dados
-    console.log('Mensagem recebida:', body)
-    return c.json({ success: true, message: 'Mensagem enviada com sucesso!' })
-  } catch (error) {
-    return c.json({ success: false, message: 'Erro ao processar mensagem' }, 400)
-  }
-})
-
-// Main page
-app.get('/', (c) => {
-  return c.html(`
     <!DOCTYPE html>
     <html lang="pt-BR">
     <head>
