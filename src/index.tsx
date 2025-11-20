@@ -1,0 +1,577 @@
+import { Hono } from 'hono'
+import { cors } from 'hono/cors'
+import { serveStatic } from 'hono/cloudflare-workers'
+
+const app = new Hono()
+
+// Enable CORS for API routes
+app.use('/api/*', cors())
+
+// Serve static files
+app.use('/static/*', serveStatic({ root: './public' }))
+
+// API routes
+app.get('/api/contact', async (c) => {
+  return c.json({ 
+    message: 'API de contato funcionando',
+    email: 'contato@vesatprime.com.br',
+    phone: '+55 (11) 99999-9999'
+  })
+})
+
+app.post('/api/contact', async (c) => {
+  try {
+    const body = await c.req.json()
+    // Aqui você pode adicionar lógica para enviar email ou salvar em banco de dados
+    console.log('Mensagem recebida:', body)
+    return c.json({ success: true, message: 'Mensagem enviada com sucesso!' })
+  } catch (error) {
+    return c.json({ success: false, message: 'Erro ao processar mensagem' }, 400)
+  }
+})
+
+// Main page
+app.get('/', (c) => {
+  return c.html(`
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Vesat Prime - Consultoria & Capital em Eficiência Energética</title>
+        <meta name="description" content="Soluções especializadas em eficiência energética para empresas. Consultoria, capital e gestão de projetos sustentáveis.">
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+        <script>
+          tailwind.config = {
+            theme: {
+              extend: {
+                colors: {
+                  primary: '#1e40af',
+                  secondary: '#10b981',
+                  accent: '#f59e0b',
+                }
+              }
+            }
+          }
+        </script>
+        <style>
+          @keyframes fadeInUp {
+            from {
+              opacity: 0;
+              transform: translateY(30px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+          .animate-fade-in-up {
+            animation: fadeInUp 0.8s ease-out forwards;
+          }
+          .gradient-bg {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #10b981 100%);
+          }
+          .hero-pattern {
+            background-image: 
+              radial-gradient(circle at 20% 50%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
+              radial-gradient(circle at 80% 80%, rgba(30, 64, 175, 0.1) 0%, transparent 50%);
+          }
+        </style>
+    </head>
+    <body class="bg-gray-50">
+        <!-- Header/Navigation -->
+        <nav class="bg-white shadow-lg fixed w-full top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <div class="flex items-center">
+                        <span class="text-2xl font-bold gradient-bg bg-clip-text text-transparent">
+                            <i class="fas fa-bolt mr-2"></i>Vesat Prime
+                        </span>
+                    </div>
+                    <div class="hidden md:flex space-x-8">
+                        <a href="#home" class="text-gray-700 hover:text-primary transition">Início</a>
+                        <a href="#services" class="text-gray-700 hover:text-primary transition">Serviços</a>
+                        <a href="#about" class="text-gray-700 hover:text-primary transition">Sobre</a>
+                        <a href="#solutions" class="text-gray-700 hover:text-primary transition">Soluções</a>
+                        <a href="#contact" class="text-gray-700 hover:text-primary transition">Contato</a>
+                    </div>
+                    <button class="md:hidden text-gray-700" onclick="toggleMenu()">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
+                </div>
+                <!-- Mobile menu -->
+                <div id="mobile-menu" class="hidden md:hidden pb-4">
+                    <a href="#home" class="block py-2 text-gray-700 hover:text-primary">Início</a>
+                    <a href="#services" class="block py-2 text-gray-700 hover:text-primary">Serviços</a>
+                    <a href="#about" class="block py-2 text-gray-700 hover:text-primary">Sobre</a>
+                    <a href="#solutions" class="block py-2 text-gray-700 hover:text-primary">Soluções</a>
+                    <a href="#contact" class="block py-2 text-gray-700 hover:text-primary">Contato</a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <section id="home" class="pt-24 pb-20 gradient-bg hero-pattern">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center text-white animate-fade-in-up">
+                    <h1 class="text-5xl md:text-6xl font-bold mb-6">
+                        Transformando Energia em<br/>
+                        <span class="text-yellow-300">Resultados Sustentáveis</span>
+                    </h1>
+                    <p class="text-xl md:text-2xl mb-8 text-blue-100">
+                        Consultoria especializada e capital para soluções em eficiência energética
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <a href="#contact" class="bg-yellow-400 text-gray-900 px-8 py-4 rounded-lg font-bold hover:bg-yellow-300 transition transform hover:scale-105">
+                            <i class="fas fa-rocket mr-2"></i>Fale Conosco
+                        </a>
+                        <a href="#services" class="bg-white text-primary px-8 py-4 rounded-lg font-bold hover:bg-gray-100 transition transform hover:scale-105">
+                            <i class="fas fa-info-circle mr-2"></i>Nossos Serviços
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Statistics -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-20">
+                    <div class="bg-white/10 backdrop-blur-lg rounded-lg p-6 text-center text-white">
+                        <div class="text-4xl font-bold text-yellow-300 mb-2">30%+</div>
+                        <div class="text-lg">Redução de Custos</div>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-lg rounded-lg p-6 text-center text-white">
+                        <div class="text-4xl font-bold text-yellow-300 mb-2">100+</div>
+                        <div class="text-lg">Projetos Implementados</div>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-lg rounded-lg p-6 text-center text-white">
+                        <div class="text-4xl font-bold text-yellow-300 mb-2">R$ 50M+</div>
+                        <div class="text-lg">Capital Investido</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Services Section -->
+        <section id="services" class="py-20 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl font-bold text-gray-900 mb-4">Nossos Serviços</h2>
+                    <p class="text-xl text-gray-600">Soluções completas para eficiência energética</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-8 hover:shadow-2xl transition transform hover:-translate-y-2">
+                        <div class="text-primary text-5xl mb-4">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4 text-gray-900">Consultoria Especializada</h3>
+                        <p class="text-gray-700 mb-4">
+                            Análise detalhada do seu consumo energético e identificação de oportunidades de economia.
+                        </p>
+                        <ul class="space-y-2 text-gray-600">
+                            <li><i class="fas fa-check text-secondary mr-2"></i>Auditoria energética</li>
+                            <li><i class="fas fa-check text-secondary mr-2"></i>Diagnóstico técnico</li>
+                            <li><i class="fas fa-check text-secondary mr-2"></i>Plano de ação personalizado</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-8 hover:shadow-2xl transition transform hover:-translate-y-2">
+                        <div class="text-secondary text-5xl mb-4">
+                            <i class="fas fa-hand-holding-usd"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4 text-gray-900">Capital & Financiamento</h3>
+                        <p class="text-gray-700 mb-4">
+                            Estruturação financeira e acesso a capital para viabilizar seus projetos de eficiência.
+                        </p>
+                        <ul class="space-y-2 text-gray-600">
+                            <li><i class="fas fa-check text-secondary mr-2"></i>Estruturação de projetos</li>
+                            <li><i class="fas fa-check text-secondary mr-2"></i>Linhas de crédito</li>
+                            <li><i class="fas fa-check text-secondary mr-2"></i>Modelos de negócio</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-8 hover:shadow-2xl transition transform hover:-translate-y-2">
+                        <div class="text-accent text-5xl mb-4">
+                            <i class="fas fa-tools"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4 text-gray-900">Gestão de Projetos</h3>
+                        <p class="text-gray-700 mb-4">
+                            Acompanhamento completo da implementação até a medição de resultados.
+                        </p>
+                        <ul class="space-y-2 text-gray-600">
+                            <li><i class="fas fa-check text-secondary mr-2"></i>Implementação técnica</li>
+                            <li><i class="fas fa-check text-secondary mr-2"></i>Gestão de fornecedores</li>
+                            <li><i class="fas fa-check text-secondary mr-2"></i>M&V de resultados</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="py-20 bg-gray-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <h2 class="text-4xl font-bold text-gray-900 mb-6">Sobre a Vesat Prime</h2>
+                        <p class="text-lg text-gray-700 mb-4">
+                            Somos especialistas em transformar o consumo energético de empresas em vantagem competitiva. 
+                            Com anos de experiência no mercado, oferecemos soluções completas que vão desde o diagnóstico 
+                            até a implementação e financiamento de projetos de eficiência energética.
+                        </p>
+                        <p class="text-lg text-gray-700 mb-6">
+                            Nossa missão é acelerar a transição energética sustentável, proporcionando economia real 
+                            e impacto ambiental positivo para nossos clientes.
+                        </p>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <div class="bg-primary text-white rounded-full p-3 mr-4">
+                                    <i class="fas fa-award"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-gray-900">Experiência Comprovada</h4>
+                                    <p class="text-gray-600">Mais de 10 anos atuando no setor energético</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-secondary text-white rounded-full p-3 mr-4">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-gray-900">Time Especializado</h4>
+                                    <p class="text-gray-600">Engenheiros e consultores certificados</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-accent text-white rounded-full p-3 mr-4">
+                                    <i class="fas fa-leaf"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-gray-900">Compromisso Sustentável</h4>
+                                    <p class="text-gray-600">Foco em resultados econômicos e ambientais</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <div class="bg-gradient-to-br from-blue-100 to-green-100 rounded-2xl p-8 shadow-xl">
+                            <div class="grid grid-cols-2 gap-6">
+                                <div class="bg-white rounded-lg p-6 text-center">
+                                    <i class="fas fa-solar-panel text-4xl text-primary mb-3"></i>
+                                    <div class="text-2xl font-bold text-gray-900">Solar</div>
+                                </div>
+                                <div class="bg-white rounded-lg p-6 text-center">
+                                    <i class="fas fa-lightbulb text-4xl text-accent mb-3"></i>
+                                    <div class="text-2xl font-bold text-gray-900">LED</div>
+                                </div>
+                                <div class="bg-white rounded-lg p-6 text-center">
+                                    <i class="fas fa-wind text-4xl text-secondary mb-3"></i>
+                                    <div class="text-2xl font-bold text-gray-900">HVAC</div>
+                                </div>
+                                <div class="bg-white rounded-lg p-6 text-center">
+                                    <i class="fas fa-microchip text-4xl text-blue-600 mb-3"></i>
+                                    <div class="text-2xl font-bold text-gray-900">IoT</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Solutions Section -->
+        <section id="solutions" class="py-20 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl font-bold text-gray-900 mb-4">Nossas Soluções</h2>
+                    <p class="text-xl text-gray-600">Tecnologias e metodologias comprovadas</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="bg-gradient-to-br from-blue-500 to-blue-700 text-white rounded-xl p-6 hover:shadow-2xl transition">
+                        <i class="fas fa-solar-panel text-4xl mb-4"></i>
+                        <h3 class="text-xl font-bold mb-2">Energia Solar</h3>
+                        <p class="text-blue-100">Sistemas fotovoltaicos e geração distribuída</p>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-green-500 to-green-700 text-white rounded-xl p-6 hover:shadow-2xl transition">
+                        <i class="fas fa-plug text-4xl mb-4"></i>
+                        <h3 class="text-xl font-bold mb-2">Gestão de Energia</h3>
+                        <p class="text-green-100">Monitoramento e otimização em tempo real</p>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-yellow-500 to-yellow-700 text-white rounded-xl p-6 hover:shadow-2xl transition">
+                        <i class="fas fa-lightbulb text-4xl mb-4"></i>
+                        <h3 class="text-xl font-bold mb-2">Iluminação LED</h3>
+                        <p class="text-yellow-100">Retrofit completo com controle inteligente</p>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-purple-500 to-purple-700 text-white rounded-xl p-6 hover:shadow-2xl transition">
+                        <i class="fas fa-wind text-4xl mb-4"></i>
+                        <h3 class="text-xl font-bold mb-2">Climatização</h3>
+                        <p class="text-purple-100">Sistemas HVAC eficientes e automatizados</p>
+                    </div>
+                </div>
+                
+                <!-- Benefits -->
+                <div class="mt-16 bg-gradient-to-r from-blue-50 to-green-50 rounded-2xl p-8">
+                    <h3 class="text-3xl font-bold text-center text-gray-900 mb-8">Por que escolher a Vesat Prime?</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="text-center">
+                            <div class="bg-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 shadow-lg">
+                                <i class="fas fa-piggy-bank text-2xl text-primary"></i>
+                            </div>
+                            <h4 class="font-bold text-gray-900 mb-2">Economia Real</h4>
+                            <p class="text-gray-600 text-sm">Redução de até 40% nos custos energéticos</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="bg-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 shadow-lg">
+                                <i class="fas fa-clock text-2xl text-secondary"></i>
+                            </div>
+                            <h4 class="font-bold text-gray-900 mb-2">ROI Rápido</h4>
+                            <p class="text-gray-600 text-sm">Retorno sobre investimento em 2-4 anos</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="bg-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 shadow-lg">
+                                <i class="fas fa-leaf text-2xl text-green-600"></i>
+                            </div>
+                            <h4 class="font-bold text-gray-900 mb-2">Sustentabilidade</h4>
+                            <p class="text-gray-600 text-sm">Redução significativa de emissões de CO₂</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="bg-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 shadow-lg">
+                                <i class="fas fa-handshake text-2xl text-accent"></i>
+                            </div>
+                            <h4 class="font-bold text-gray-900 mb-2">Parceria Total</h4>
+                            <p class="text-gray-600 text-sm">Suporte completo do início ao fim</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="py-20 bg-gray-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl font-bold text-gray-900 mb-4">Entre em Contato</h2>
+                    <p class="text-xl text-gray-600">Vamos conversar sobre suas necessidades energéticas</p>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                    <!-- Contact Form -->
+                    <div class="bg-white rounded-xl shadow-xl p-8">
+                        <form id="contact-form" class="space-y-6">
+                            <div>
+                                <label class="block text-gray-700 font-bold mb-2">Nome Completo</label>
+                                <input type="text" name="name" required 
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-bold mb-2">Email</label>
+                                <input type="email" name="email" required 
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-bold mb-2">Telefone</label>
+                                <input type="tel" name="phone" required 
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-bold mb-2">Empresa</label>
+                                <input type="text" name="company" 
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-bold mb-2">Mensagem</label>
+                                <textarea name="message" rows="4" required 
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"></textarea>
+                            </div>
+                            <button type="submit" 
+                                class="w-full bg-primary text-white py-4 rounded-lg font-bold hover:bg-blue-800 transition transform hover:scale-105">
+                                <i class="fas fa-paper-plane mr-2"></i>Enviar Mensagem
+                            </button>
+                        </form>
+                        <div id="form-message" class="mt-4 text-center hidden"></div>
+                    </div>
+                    
+                    <!-- Contact Info -->
+                    <div>
+                        <div class="bg-gradient-to-br from-primary to-blue-700 text-white rounded-xl p-8 mb-6">
+                            <h3 class="text-2xl font-bold mb-6">Informações de Contato</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-start">
+                                    <i class="fas fa-envelope text-2xl mr-4 mt-1"></i>
+                                    <div>
+                                        <div class="font-bold">Email</div>
+                                        <a href="mailto:contato@vesatprime.com.br" class="text-blue-200 hover:text-white">contato@vesatprime.com.br</a>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <i class="fas fa-phone text-2xl mr-4 mt-1"></i>
+                                    <div>
+                                        <div class="font-bold">Telefone</div>
+                                        <a href="tel:+5511999999999" class="text-blue-200 hover:text-white">+55 (11) 99999-9999</a>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <i class="fas fa-map-marker-alt text-2xl mr-4 mt-1"></i>
+                                    <div>
+                                        <div class="font-bold">Endereço</div>
+                                        <div class="text-blue-200">São Paulo, SP - Brasil</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl shadow-xl p-8">
+                            <h3 class="text-2xl font-bold text-gray-900 mb-6">Horário de Atendimento</h3>
+                            <div class="space-y-3 text-gray-700">
+                                <div class="flex justify-between">
+                                    <span class="font-bold">Segunda - Sexta:</span>
+                                    <span>9h às 18h</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="font-bold">Sábado:</span>
+                                    <span>9h às 13h</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="font-bold">Domingo:</span>
+                                    <span>Fechado</span>
+                                </div>
+                            </div>
+                            <div class="mt-6 pt-6 border-t border-gray-200">
+                                <p class="text-gray-600 text-center">
+                                    <i class="fas fa-clock text-primary mr-2"></i>
+                                    Respondemos em até 24 horas
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="bg-gray-900 text-white py-12">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                    <div>
+                        <h3 class="text-2xl font-bold mb-4 gradient-bg bg-clip-text text-transparent">
+                            <i class="fas fa-bolt mr-2"></i>Vesat Prime
+                        </h3>
+                        <p class="text-gray-400">
+                            Transformando energia em resultados sustentáveis para o futuro do seu negócio.
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="font-bold mb-4">Serviços</h4>
+                        <ul class="space-y-2 text-gray-400">
+                            <li><a href="#services" class="hover:text-secondary transition">Consultoria</a></li>
+                            <li><a href="#services" class="hover:text-secondary transition">Capital</a></li>
+                            <li><a href="#services" class="hover:text-secondary transition">Gestão de Projetos</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-bold mb-4">Empresa</h4>
+                        <ul class="space-y-2 text-gray-400">
+                            <li><a href="#about" class="hover:text-secondary transition">Sobre Nós</a></li>
+                            <li><a href="#solutions" class="hover:text-secondary transition">Soluções</a></li>
+                            <li><a href="#contact" class="hover:text-secondary transition">Contato</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-bold mb-4">Redes Sociais</h4>
+                        <div class="flex space-x-4">
+                            <a href="#" class="bg-gray-800 hover:bg-primary p-3 rounded-full transition">
+                                <i class="fab fa-linkedin"></i>
+                            </a>
+                            <a href="#" class="bg-gray-800 hover:bg-primary p-3 rounded-full transition">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                            <a href="#" class="bg-gray-800 hover:bg-primary p-3 rounded-full transition">
+                                <i class="fab fa-facebook"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="border-t border-gray-800 pt-8 text-center text-gray-400">
+                    <p>&copy; 2024 Vesat Prime. Todos os direitos reservados.</p>
+                </div>
+            </div>
+        </footer>
+
+        <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+        <script>
+          // Mobile menu toggle
+          function toggleMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+          }
+
+          // Smooth scroll
+          document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+              e.preventDefault();
+              const target = document.querySelector(this.getAttribute('href'));
+              if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                // Close mobile menu if open
+                document.getElementById('mobile-menu').classList.add('hidden');
+              }
+            });
+          });
+
+          // Contact form submission
+          document.getElementById('contact-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            const messageDiv = document.getElementById('form-message');
+            
+            try {
+              const response = await axios.post('/api/contact', data);
+              messageDiv.className = 'mt-4 text-center p-4 bg-green-100 text-green-700 rounded-lg';
+              messageDiv.textContent = response.data.message;
+              messageDiv.classList.remove('hidden');
+              e.target.reset();
+              
+              setTimeout(() => {
+                messageDiv.classList.add('hidden');
+              }, 5000);
+            } catch (error) {
+              messageDiv.className = 'mt-4 text-center p-4 bg-red-100 text-red-700 rounded-lg';
+              messageDiv.textContent = 'Erro ao enviar mensagem. Por favor, tente novamente.';
+              messageDiv.classList.remove('hidden');
+            }
+          });
+
+          // Scroll animations
+          const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+          };
+
+          const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+              }
+            });
+          }, observerOptions);
+
+          // Observe all sections
+          document.querySelectorAll('section > div').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'opacity 0.8s ease-out, transform 0.8s ease-out';
+            observer.observe(el);
+          });
+        </script>
+    </body>
+    </html>
+  `)
+})
+
+export default app
