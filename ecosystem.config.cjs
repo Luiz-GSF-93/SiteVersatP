@@ -1,5 +1,5 @@
-//module.exports = {
-  /*apps: [
+module.exports = {
+  apps: [
     {
       name: 'webapp',
       script: 'npx',
